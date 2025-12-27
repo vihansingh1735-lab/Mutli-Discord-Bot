@@ -13,7 +13,7 @@ import {
     TextInputBuilder,
     StringSelectMenuOptionBuilder
 } from 'discord.js';
-import { sanitizeMessage, cache, variables, isImageURLValid, postReddit, nsfwWords } from '../../../src/utils/index.mjs';
+import { sanitizeMessage, cache, variables, isImageURLValid, postReddit } from '../../../src/utils/index.mjs';
 import e from 'express';
 
 export default {
