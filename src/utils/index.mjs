@@ -329,3 +329,51 @@ export const validateSocialMedia = (input, type) => {
   const match = input.match(regex[type.toLowerCase()]);
   return match ? match[2] || match[1] : null;
 };
+/**
+ * Check if an entry exists in a given duration
+ * @param {Object} entry
+ * @param {"day" | "week" | "month"} duration
+ * @param {Date} currentDate
+ * @param {"text" | "voice"} type
+ * @returns {boolean}
+ */
+export const isEntryInDuration = (
+  entry,
+  duration,
+  currentDate,
+  type = "text"
+) => {
+  if (!entry) return false;
+
+  switch (duration) {
+    case "day":
+      return type === "text"
+        ? entry.Timestamp?.some(
+            (t) => t.Day === currentDate.toISOString().slice(0, 10)
+          )
+        : entry.Voice?.Timestamp?.some(
+            (t) => t.Day === currentDate.toISOString().slice(0, 10)
+          );
+
+    case "week":
+      return type === "text"
+        ? entry.Timestamp?.some(
+            (t) => t.Week === getWeekNumber(currentDate)
+          )
+        : entry.Voice?.Timestamp?.some(
+            (t) => t.Week === getWeekNumber(currentDate)
+          );
+
+    case "month":
+      return type === "text"
+        ? entry.Timestamp?.some(
+            (t) => t.Month === currentDate.toISOString().slice(0, 7)
+          )
+        : entry.Voice?.Timestamp?.some(
+            (t) => t.Month === currentDate.toISOString().slice(0, 7)
+          );
+
+    default:
+      return false;
+  }
+};
