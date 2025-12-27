@@ -292,44 +292,60 @@ class Bot extends Client {
   }
 
   /** @returns {Promise<Array<{name:string, run:Function}>>} */
-  async getEvets() {
-    const events = [];
-    const key = "Events";
-    const cacheEve = await cache.get(key);
+  async getEvents() {
+  const cached = cache.get("Events");
+  if (cached) return cached;
 
-    if (cacheEve) return cacheEve;
+  const events = [];
+  const folders = await fs.readdir("./src/events");
 
-    const _events = await fs.readdir(`./src/events`);
+  for (const folder of folders) {
+    const fullPath = `./src/events/${folder}`;
+    const stat = await fs.stat(fullPath);
 
-    for (const event of _events) {
-      const stat = await fs.stat(`./src/events/${event}`);
+    // 📁 Folder with multiple event files
+    if (stat.isDirectory()) {
+      const files = await fs.readdir(fullPath);
 
-      if (stat.isDirectory()) {
-        const EventsDir = await fs.readdir(`./src/events/${event}`);
+      for (const file of files.filter(f => f.endsWith(".mjs"))) {
+        const imported = await import(`./events/${folder}/${file}`);
+        const event = imported?.default;
 
-        EventsDir.filter((i) => i.endsWith(".mjs")).forEach(
-          async (finalEvent) => {
-            const { default: clientEvent } = await import(
-              `./events/${event}/${finalEvent}`
-            );
-            if (
-  !clientEvent ||
-  typeof clientEvent !== "object" ||
-  clientEvent.ignore ||
-  typeof clientEvent.name !== "string" ||
-  typeof clientEvent.run !== "function"
-) {
-  repeat; // ✅ DO NOT return
-}
+        if (
+          !event ||
+          typeof event !== "object" ||
+          event.ignore ||
+          typeof event.name !== "string" ||
+          typeof event.run !== "function"
+        ) {
+          continue; // ✅ VALID (inside for-loop)
+        }
 
-events.push(clientEvent);
-        const { default: clientEvent } = await import(`./events/${event}`);
-        if (clientEvent?.ignore || !clientEvent.name || !clientEvent.run)
-          return;
-        events.push(clientEvent);
+        events.push(event);
       }
-    }
 
+    // 📄 Single event file
+    } else if (folder.endsWith(".mjs")) {
+      const imported = await import(`./events/${folder}`);
+      const event = imported?.default;
+
+      if (
+        !event ||
+        typeof event !== "object" ||
+        event.ignore ||
+        typeof event.name !== "string" ||
+        typeof event.run !== "function"
+      ) {
+        continue;
+      }
+
+      events.push(event);
+    }
+  }
+
+  cache.set("Events", events, 10);
+  return events;
+}
     cache.set(key, events, 10);
     return events;
   }
