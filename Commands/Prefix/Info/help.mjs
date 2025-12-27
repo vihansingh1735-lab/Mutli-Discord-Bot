@@ -62,7 +62,9 @@ export default {
 
             /** @type {EmbedBuilder[]} */
             let embeds = []
-
+            console.log("HELP CMD DEBUG:");
+console.log("User ID:", user.id);
+console.log("Owners:", client.config.Owners);
             for (const [cat, cmds] of categories) {
                 if (cat === "OwnerOnly" && !client?.config?.Owners?.includes(user.id)) continue;
                 const embed = new EmbedBuilder()
