@@ -127,7 +127,13 @@ export const GhostPingHandler = async (message, data) => {
 /**@type {BasicParamHandler} */
 export const MessageModeHandler = (message, data) => {
     try {
-        if (message.author.bot || message.system || !message.deletable) return;
+        if (!message || !message.author) return;
+
+if (
+  message.author.bot ||
+  message.system ||
+  message.webhookId
+) return;
         if (!data?.MessageModes?.List || !data.MessageModes.List.length) return;
 
         const MessageModeData = data.MessageModes.List.find(c => c.Channel === message.channelId);
