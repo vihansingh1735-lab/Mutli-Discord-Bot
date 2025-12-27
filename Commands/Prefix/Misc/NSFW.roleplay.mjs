@@ -33,11 +33,7 @@ export default {
           ],
         });
 
-      if (!message.channel.nsfw)
-        return message.reply({
-          content: "No NSFW channel",
-        });
-
+      
       const response = await axios.get(
         `https://purrbot.site/api/img/nsfw/${command.name}/gif`
       );
