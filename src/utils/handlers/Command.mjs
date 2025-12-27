@@ -70,6 +70,8 @@ export const prefixHandler = async (message, guildData, { cmd, command, args, pr
                 content: `^{handler.command.disabled}`
             })
         }
+        console.log("OWNERS:", client.config.Owners);
+console.log("AUTHOR:", message.author.id);
         // ==============================< Owner Only >============================= \\
         if (command.ownerOnly) {
             const owners = client.config.Owners
