@@ -106,11 +106,11 @@ export default {
   // webhooks logs of your bot
   Log: {
     Ready:
-      "https://discord.com/api/webhooks/1198197920042848276/eKefN4rkaHn4ZpyssxYAsh7aKGcmMFTzMHUVS415zZzQQAqkbvzm79tUL_bAltDxkxE2",
+      "https://discord.com/api/webhooks/1454090661077712979/gSJDCxItlXOxbJcxGAeLF_knlJ6ylRVYebImVx2pQCI0-LP5LGl39npsg-JW1Xm_LNjW",
     Command:
-      "https://discord.com/api/webhooks/1198197920042848276/eKefN4rkaHn4ZpyssxYAsh7aKGcmMFTzMHUVS415zZzQQAqkbvzm79tUL_bAltDxkxE2",
+      "https://discord.com/api/webhooks/1454090661077712979/gSJDCxItlXOxbJcxGAeLF_knlJ6ylRVYebImVx2pQCI0-LP5LGl39npsg-JW1Xm_LNjW",
     Error:
-      "https://discord.com/api/webhooks/1198197920042848276/eKefN4rkaHn4ZpyssxYAsh7aKGcmMFTzMHUVS415zZzQQAqkbvzm79tUL_bAltDxkxE2",
+      "https://discord.com/api/webhooks/1454090661077712979/gSJDCxItlXOxbJcxGAeLF_knlJ6ylRVYebImVx2pQCI0-LP5LGl39npsg-JW1Xm_LNjW",
   },
 
   Commands: {
