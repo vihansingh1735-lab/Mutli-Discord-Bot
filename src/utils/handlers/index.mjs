@@ -80,12 +80,38 @@ export const StickyMessagesHandler = async (message, data) => {
 
 /**@type {BasicParamHandler} */
 export const GhostPingHandler = async (message, data) => {
-    try {
-        if (message.author.bot || message.system || !message.content || message.partial) return;
+  try {
+    // ===== BASIC SAFETY CHECKS =====
+    if (!message) return;
+    if (message.partial) return;
+    if (!message.guild) return;
+    if (!message.content) return;
+    if (message.author?.bot || message.system) return;
 
-        if (!data.AutoMod.Enable || !data.AutoMod.Anti.Ghostping) return;
+    // ===== CONFIG CHECK =====
+    if (!data?.AutoMod?.Enable) return;
+    if (!data?.AutoMod?.Anti?.Ghostping) return;
 
-        const { members, roles, everyone } = message.mentions;
+    // ===== MENTIONS SAFETY =====
+    if (!message.mentions) return;
+
+    const members = message.mentions.members ?? new Map();
+    const roles = message.mentions.roles ?? new Map();
+    const everyone = Boolean(message.mentions.everyone);
+
+    // ===== NO PINGS? EXIT =====
+    if (!members.size && !roles.size && !everyone) return;
+
+    // ===== IGNORE SELF PINGS =====
+    if (members.size === 1 && members.has(message.author.id)) return;
+
+    // ===== AT THIS POINT IT IS A REAL PING =====
+    // Your ghost-ping logic continues here (log, warn, delete, etc.)
+
+  } catch (err) {
+    console.error("GhostPingHandler error:", err);
+  }
+};
 
         // Check message if it contains mentions
         if (members.size > 0 || roles.size > 0 || everyone) {
