@@ -1,7 +1,8 @@
-import { Application, Guild, Webhook } from "discord.js";
+import { Guild, Webhook } from "discord.js";
 import * as number from "./number.mjs";
 import axios from "axios";
 import url from "url";
+
 import Level from "./classes/Level.mjs";
 import EmbedBuilder from "./classes/EmbedBuilder.mjs";
 import ModUtils, { logModeration, logModWebhook } from "./classes/ModUtils.mjs";
@@ -9,6 +10,7 @@ import Economy from "./classes/Economy.mjs";
 import Database from "./classes/Database.mjs";
 import GiveawaysManager from "./classes/Giveaways.mjs";
 import VoiceMaster from "./classes/VoiceMaster.mjs";
+
 import cache from "./cache.mjs";
 
 import * as todClassic from "./stuff/tod/classic.mjs";
@@ -23,12 +25,13 @@ import * as automod from "./automod.mjs";
 
 import * as justreddit from "justreddit";
 import Parser from "rss-parser";
-import * as cheerio from "cheerio";
 import { auditlog } from "./auditlog.mjs";
 import logger, { webhookLog } from "./logger.mjs";
 
 const parser = new Parser({ timeout: 10_000 });
 const getURLParts = url.parse;
+
+/* ================= EXPORTS ================= */
 
 export {
   cache,
@@ -53,7 +56,8 @@ export {
   justreddit,
 };
 
-/* -------------------- CONTENT PARSER -------------------- */
+/* ================= UTILITIES ================= */
+
 export const ParseContent = (content, guildData) => {
   if (!content?.files || !Array.isArray(content.files)) {
     return JSON.parse(
@@ -79,7 +83,8 @@ export const sanitizeMessage = (msg, limit = 2000) =>
 export const convertObject = (obj) =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]));
 
-/* -------------------- PROGRESS BARS -------------------- */
+/* ================= PROGRESS ================= */
+
 export const progressBar = (percentage = 0, length = 14) => {
   const pb = {
     le: "<:lefte:1162595345532985404>",
@@ -108,7 +113,8 @@ export const progressBar2 = (percentage = 0, steps = 10) => {
   return `[${"#".repeat(progress)}${"-".repeat(steps - progress)}]`;
 };
 
-/* -------------------- VALIDATORS -------------------- */
+/* ================= VALIDATORS ================= */
+
 export const isImageURLValid = async (imageURL) => {
   try {
     const res = await axios.head(imageURL);
@@ -135,27 +141,8 @@ export const containsLink = (text) =>
 export const escapeRegex = (str) =>
   str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/* -------------------- SOCIAL VALIDATION -------------------- */
-export const validateInstagramId = (input) => {
-  const match = input.match(/instagram\.com\/([a-z0-9_]+)/i);
-  return match ? match[1] : false;
-};
+/* ================= COUNTERS ================= */
 
-export const validateXId = (input) => {
-  const match = input.match(/(x\.com|twitter\.com)\/([a-z0-9_]+)/i);
-  return match ? match[2] : false;
-};
-
-export const validateSocialMedia = (input, type) => {
-  const regex = {
-    youtube: /youtube\.com\/(channel|c)\/([a-z0-9_]+)/i,
-    twitch: /twitch\.tv\/([a-z0-9_]+)/i,
-  };
-  const match = input.match(regex[type]);
-  return match ? match[2] || match[1] : null;
-};
-
-/* -------------------- COUNTERS -------------------- */
 export const onlineCounter = async (data, guild) => {
   await guild.fetch();
   const channel = guild.channels.cache.get(data.Counter.Online.Channel);
@@ -180,7 +167,8 @@ export const totalCounter = async (data, guild) => {
   );
 };
 
-/* -------------------- REDDIT (SFW ONLY) -------------------- */
+/* ================= REDDIT (SAFE) ================= */
+
 export const redditFeed = async (query, type) => {
   const map = {
     Random: "random",
@@ -195,13 +183,15 @@ export const redditFeed = async (query, type) => {
       subReddit: query,
       sortType: map[type],
     });
+
     return post?.error ? false : post;
   } catch {
     return false;
   }
 };
 
-/* -------------------- TRUTH OR DARE (NSFW TEXT OK) -------------------- */
+/* ================= TRUTH OR DARE ================= */
+
 export const getTod = (type, subType) => {
   type = type === "Random" ? (Math.random() < 0.5 ? "Truth" : "Dare") : type;
 
@@ -215,7 +205,18 @@ export const getTod = (type, subType) => {
   return source[type][Math.floor(Math.random() * source[type].length)];
 };
 
-/* -------------------- MISC -------------------- */
+/* ================= DATE UTILS (FIXED EXPORT) ================= */
+
+export const getWeekNumber = (date) => {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+};
+
+/* ================= MISC ================= */
+
 export const addSuffix = (num) => {
   if (!num) return;
   if (num % 100 >= 11 && num % 100 <= 13) return `${num}th`;
