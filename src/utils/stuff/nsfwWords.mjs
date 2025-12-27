@@ -1,2 +1,0 @@
-export default 
-['ass', 'sixtynine', 'pussy', 'dick', 'anal', 'boobs', 'ass', 'bdsm', 'black', 'easter', 'bottomless', 'blowjub', 'collared', 'cum', 'cumsluts', 'dp', 'dom', 'extreme', 'feet', 'finger', 'fuck', 'futa', 'gay', 'gif', 'group', 'hentai', 'kiss', 'lesbian', 'lick', 'pegged', 'puffies', 'real', 'suck', 'tattoo', 'tiny', 'toys', 'xmas']
