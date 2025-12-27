@@ -99,7 +99,7 @@ export default {
                 .setAuthor({ name: `${client.user.username}\'s Help Menu`, iconURL: client.user.displayAvatarURL({ format: "png" }) })
                 .setDescription(`^{command.help.description}`)
                 .setFields([
-                    { name: `!{star} Stats`, value: `- Ping: ${Math.floor(client.ws.ping)}ms\n- Guilds: ${client.guilds.cache.size}\n- Members: ${number.abbreviate(client.users.cache.size)}`, inline: false }
+                    { name: `!{star} Stats`, value: `- Ping: ${Math.floor(client.ws.ping)}ms\n- Guilds: ${client.guilds.cache.size}\n- Members: ${number.abbreviate(totalMembers)}`, inline: false }
                 ])
 
             let customCommand = new EmbedBuilder()
