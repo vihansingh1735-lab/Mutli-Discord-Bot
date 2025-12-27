@@ -348,7 +348,7 @@ console.log("AUTHOR:", message.author.id);
 
         //* ==============================< Start The Command >============================= \\
 
-        await command.run({ client, message, args, command, options: optionsMap, err, guildData });
+       // await command.run({ client, message, args, command, options: optionsMap, err, guildData });
 
 
         const logEmbed = new EmbedBuilder(client)
