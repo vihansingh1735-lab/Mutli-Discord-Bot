@@ -312,10 +312,17 @@ class Bot extends Client {
             const { default: clientEvent } = await import(
               `./events/${event}/${finalEvent}`
             );
-            if (!clientEvent?.ignore && clientEvent.name && clientEvent.run)
-              events.push(clientEvent);
-          }
-        );
+            if (
+  !clientEvent ||
+  typeof clientEvent !== "object" ||
+  clientEvent.ignore ||
+  typeof clientEvent.name !== "string" ||
+  typeof clientEvent.run !== "function"
+) {
+  continue;
+}
+
+events.push(clientEvent);
       } else {
         const { default: clientEvent } = await import(`./events/${event}`);
         if (clientEvent?.ignore || !clientEvent.name || !clientEvent.run)
