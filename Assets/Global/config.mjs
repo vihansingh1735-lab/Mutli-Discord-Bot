@@ -89,9 +89,9 @@ export default {
       Patreon: "https://patreon.com",
     },
 
-    Status: "dnd",
+    Status: "online",
     Activity: {
-      name: "BeE Happy :)", // status
+      name: "Be Happy :)", // status
       type: 4,
     },
 
