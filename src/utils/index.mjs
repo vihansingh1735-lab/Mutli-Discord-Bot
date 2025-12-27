@@ -241,3 +241,35 @@ export const addSuffix = (num) => {
 };
 
 export const isHex = (text) => /^#?[0-9A-F]{6}$/i.test(text);
+/**
+ * Instagram follower counter
+ * @param {Object} data
+ * @param {import("discord.js").Guild} guild
+ */
+export const instaCounter = async (data, guild) => {
+  if (!data?.Counter?.Insta?.ID) return;
+
+  const channel = guild.channels.cache.get(data.Counter.Insta.Channel);
+  if (!channel) return;
+
+  try {
+    const res = await axios.get(
+      `https://i.instagram.com/api/v1/users/web_profile_info/?username=${data.Counter.Insta.ID}`,
+      {
+        headers: {
+          "User-Agent":
+            "Instagram 219.0.0.12.117 Android",
+        },
+      }
+    );
+
+    const count =
+      res?.data?.data?.user?.edge_followed_by?.count ?? 0;
+
+    await channel.setName(
+      `${data.Counter.Insta.ChannelName || "Insta"} ${number.abbreviate(count)}`
+    );
+  } catch {
+    // fail silently (prevents crash)
+  }
+};
