@@ -6,7 +6,7 @@ import {
 } from "../../utils/handlers/index.mjs";
 
 import { logger, escapeRegex, } from "../../utils/index.mjs";
-
+console.log("PREFIX EVENT FIRED", message.id);
 export default {
   name: "messageCreate",
   /**
