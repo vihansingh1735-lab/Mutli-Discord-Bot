@@ -227,7 +227,7 @@ export default {
 
               //* Presence
               else if (value === "presence") {
-                await i.safeUpdate(presencePanle());
+                await i.safeUpdate(presencePanel());
               }
 
               //* owners
