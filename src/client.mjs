@@ -319,7 +319,7 @@ class Bot extends Client {
   typeof clientEvent.name !== "string" ||
   typeof clientEvent.run !== "function"
 ) {
-  continue;
+  return;
 }
 
 events.push(clientEvent);
