@@ -176,20 +176,30 @@ if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
   }
 
   async _loadEvents() {
-    const events = await this.getEvents();
+  const events = await this.getEvents();
 
-    for await (const event of events) {
-      this.events.set(event.name, event);
-      if (event.customEvent) return event.run(this);
+  for (const event of events) {
+    // 🔒 Prevent duplicate registration
+    if (this.events.has(event.name)) continue;
 
-      if (event.runOnce)
-        this.once(
-          event.name,
-          async (...args) => await event.run(this, ...args)
-        );
-      else
-        this.on(event.name, async (...args) => await event.run(this, ...args));
+    this.events.set(event.name, event);
+
+    // Custom events (run once, no listener)
+    if (event.customEvent) {
+      await event.run(this);
+      continue;
     }
+
+    if (event.runOnce) {
+      this.once(event.name, async (...args) => {
+        await event.run(this, ...args);
+      });
+    } else {
+      this.on(event.name, async (...args) => {
+        await event.run(this, ...args);
+      });
+    }
+  }
   }
 
   async loadCommands() {
