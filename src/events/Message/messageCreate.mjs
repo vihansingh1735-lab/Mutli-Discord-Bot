@@ -3,10 +3,6 @@ import { prefixHandler } from "../../utils/handlers/index.mjs";
 
 export default {
   name: "messageCreate",
-
-  run: async (client, message) => {
-    console.log("📩 messageCreate fired:", message.content);
-
     if (
       message.author?.bot ||
       message.system ||
