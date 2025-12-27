@@ -1,4 +1,7 @@
-
+export default {
+  name: "messageCreate",
+  run: async (client, message) => {
+    console.log("📩 messageCreate fired:", message.content);
   run: async (client, message) => {
   if (
   message.author.bot ||
