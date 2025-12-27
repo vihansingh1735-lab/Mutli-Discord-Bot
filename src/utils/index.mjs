@@ -273,3 +273,42 @@ export const instaCounter = async (data, guild) => {
     // fail silently (prevents crash)
   }
 };
+/**
+ * Post Reddit feeds using webhooks (SFW only)
+ * @param {import("discord.js").Guild} guild
+ */
+export const postReddit = async (guild) => {
+  const data = await guild.fetchData();
+  if (!data?.Reddit?.Enable || !data?.Reddit?.List?.length) return;
+
+  for (const feed of data.Reddit.List) {
+    try {
+      const key = `Webhook:${guild.id}:${feed.Webhook.id}`;
+      let webhook = cache.get(key);
+
+      if (!webhook) {
+        webhook = await guild.client.fetchWebhook(
+          feed.Webhook.id,
+          feed.Webhook.token
+        );
+        if (!webhook) continue;
+        cache.set(key, webhook, 120);
+      }
+
+      const reddit = await redditFeed(feed.Triger, feed.Type);
+      if (!reddit) continue;
+
+      const embed = new EmbedBuilder()
+        .setColor("DarkButNotBlack")
+        .setAuthor({ name: reddit.author })
+        .setTitle(reddit.title)
+        .setURL(reddit.url)
+        .setImage(reddit.image)
+        .setFooter({ text: `Feed from /r/${feed.Triger}` });
+
+      await webhook.send({ embeds: [embed] }).catch(() => {});
+    } catch {
+      // silent fail to avoid crashes
+    }
+  }
+};
