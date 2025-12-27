@@ -1,11 +1,11 @@
 run: async (client, message) => {
-  if (
-    message.author.bot ||
-    message.system ||
-    !message.guild ||
-    message.editedTimestamp // 🔥 FIX
-  ) return;
+  if (!message || !message.author) return;
 
+if (
+  message.author.bot ||
+  message.system ||
+  message.webhookId
+) return;
   console.log("PREFIX EVENT FIRED", message.id);
 
   const guildData = await message.guild.fetchData();
