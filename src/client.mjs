@@ -53,7 +53,7 @@ class Bot extends Client {
 
     this.config = config;
   }
-}
+
 
     this.config = config;
   
