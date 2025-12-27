@@ -89,12 +89,6 @@ export default {
       Patreon: "https://patreon.com",
     },
 
-    Status: "online",
-    Activity: {
-      name: "Be Happy :)", // status
-      type: 4,
-    },
-
     Economy: {
       Global: true,
     },
