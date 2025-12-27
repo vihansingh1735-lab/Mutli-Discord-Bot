@@ -274,7 +274,7 @@ export default {
                   .setTitle("Prefix")
                   .addComponents(new ActionRowBuilder().addComponents(input_1));
 
-                await i.deferUpdate();(modal);
+                await i.showmodal(modal);
 
                 const response = await i.client.awaitModalSubmit({
                   time: 240000,
