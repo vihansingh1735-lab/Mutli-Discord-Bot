@@ -55,8 +55,7 @@ class Bot extends Client {
   }
 
 
-    this.config = config;
-  
+ 
 
   async start() {
     try {
