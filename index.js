@@ -18,7 +18,7 @@ import globalConfig from "./Assets/Global/config.mjs";
 import logger from "./src/utils/logger.mjs";
 import "./src/utils/Command.mjs";
 import boxen from "boxen";
-
+import "./keep-alive.mjs";
 let aio = `Welcome to ${"Console".blue.bold} by ${
   "ALL IN ONE | Development".red
 }`;
