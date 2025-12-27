@@ -14,8 +14,15 @@ export default {
       message.webhookId
     ) return;
 
-    console.log("PREFIX EVENT FIRED", message.id);
+    // 🔒 PREVENT DOUBLE PREFIX EXECUTION
+if (client._handledMessages?.has(message.id)) return;
 
+if (!client._handledMessages) {
+  client._handledMessages = new Set();
+}
+
+client._handledMessages.add(message.id);
+    
     const guildData = await message.guild.fetchData();
     const prefix = guildData?.Prefix || client.config.Prefix;
 
