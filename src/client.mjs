@@ -307,15 +307,15 @@ class Bot extends Client {
       if (stat.isDirectory()) {
         const EventsDir = await fs.readdir(`./src/events/${event}`);
 
-        EventsDir.filter((i) => i.endsWith(".mjs")).forEach(
-          async (finalEvent) => {
-            const { default: clientEvent } = await import(
-              `./events/${event}/${finalEvent}`
-            );
-            if (!clientEvent?.ignore && clientEvent.name && clientEvent.run)
-              events.push(clientEvent);
-          }
-        );
+        for (const finalEvent of EventsDir.filter(i => i.endsWith(".mjs"))) {
+  const { default: clientEvent } = await import(
+    `./events/${event}/${finalEvent}`
+  );
+
+  if (!clientEvent?.ignore && clientEvent.name && clientEvent.run) {
+    events.push(clientEvent);
+  }
+        }
       } else {
         const { default: clientEvent } = await import(`./events/${event}`);
         if (clientEvent?.ignore || !clientEvent.name || !clientEvent.run)
