@@ -19,11 +19,7 @@ export default {
           ],
         });
 
-      if (!message.channel.nsfw)
-        return message.reply({
-          content: "No NSFW channel",
-        });
-
+      
       const response = await redditFeed(command.name, "Random", true, "real");
 
       if (!response) return errMsg();
