@@ -168,7 +168,7 @@ export default {
                   .addComponents(new ActionRowBuilder().addComponents(input_1));
 
                 await i.safeShowModal(modal).then(async () => {
-                  const response = await i.awaitModalSubmit({
+                  const response = await i.client.awaitModalSubmit({
                     filter: (i) =>
                       i.customId === "botConfig:modal:nameORpfp" &&
                       i.user.id === message.author.id,
