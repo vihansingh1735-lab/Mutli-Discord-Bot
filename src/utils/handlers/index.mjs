@@ -102,53 +102,48 @@ export const GhostPingHandler = async (message, data) => {
     // ===== NO PINGS? EXIT =====
     if (!members.size && !roles.size && !everyone) return;
 
-    // ===== IGNORE SELF PINGS =====
+    // ===== IGNORE SELF PING =====
     if (members.size === 1 && members.has(message.author.id)) return;
 
-    // ===== AT THIS POINT IT IS A REAL PING =====
-    // Your ghost-ping logic continues here (log, warn, delete, etc.)
+    // ===== LOG GHOST PING =====
+    const web = await logModWebhook(message.guild);
+    if (!web) return;
 
-  } catch (err) {
-    console.error("GhostPingHandler error:", err);
+    await web.send({
+      embeds: [
+        new EmbedBuilder()
+          .setColor("DarkGrey")
+          .setAuthor({ name: "Ghost Ping Detected" })
+          .setDescription(
+            `**Message:**\n${sanitizeMessage(message.content)}\n\n` +
+            `**Author:** ${message.author.tag} \`${message.author.id}\`\n` +
+            `**Channel:** ${message.channel.toString()}`
+          )
+          .addFields(
+            {
+              name: "Members",
+              value: members.size.toString(),
+              inline: true,
+            },
+            {
+              name: "Roles",
+              value: roles.size.toString(),
+              inline: true,
+            },
+            {
+              name: "Everyone?",
+              value: everyone ? "Yes" : "No",
+              inline: true,
+            }
+          )
+          .setFooter({ text: `Sent at: ${message.createdAt}` }),
+      ],
+    });
+
+  } catch (e) {
+    logger(e, "error");
   }
 };
-
-        // Check message if it contains mentions
-        if (members.size > 0 || roles.size > 0 || everyone) {
-            const web = await logModWebhook(message.guild)
-            if (web) {
-                web.send({
-                    embeds: [
-                        new EmbedBuilder().setColor("DarkGrey")
-                            .setAuthor({ name: "Ghost Ping Detected" })
-                            .setDescription(
-                                `**Message:**\n${sanitizeMessage(message.content)}\n\n` +
-                                `**Author:** ${message.author.tag} \`${message.author.id}\`\n` +
-                                `**Channel:** ${message.channel.toString()}`
-                            )
-                            .addFields({
-                                name: "Members",
-                                value: members.size.toString(),
-                                inline: true,
-                            }, {
-                                name: "Roles",
-                                value: roles.size.toString(),
-                                inline: true,
-                            }, {
-                                name: "Everyone?",
-                                value: everyone ? "Yes" : "No",
-                                inline: true,
-                            })
-                            .setFooter({ text: `Sent at: ${message.createdAt}` })
-                    ]
-                })
-            }
-        }
-    } catch (e) {
-        logger(e, "error")
-    }
-}
-
 
 /**@type {BasicParamHandler} */
 export const MessageModeHandler = (message, data) => {
