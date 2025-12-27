@@ -1,7 +1,10 @@
-run: async (client, message) => {
-  console.log("MESSAGE CREATE FIRED:", message.content);
+
   run: async (client, message) => {
-  if (!message || !message.author) return;
+  if (
+  message.author.bot ||
+  message.system ||
+  message.webhookId
+) return;
 
 if (
   message.author.bot ||
