@@ -51,7 +51,15 @@ import { SlashCommandBuilder } from 'discord.js'
  * @property {import("discord.js").PermissionResolvable[]} permissions.bot
  * @property {import("../../Assets/Global/config.mjs").CategoryValue} category 
 */
-
+// OWNER ONLY CHECK
+if (command.ownerOnly) {
+  const owners = client.config.Owners || [];
+  if (!owners.includes(message.author.id)) {
+    return message.reply({
+      content: "❌ This command is restricted to bot owners.",
+    });
+  }
+}
 
 /** @type {interaction} */
 const test = {
