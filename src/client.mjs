@@ -204,7 +204,7 @@ class Bot extends Client {
         prefixCount++;
         if (Array.isArray(prefixCommand.name)) {
           for (const name of prefixCommand.name) {
-            const clonedCommand = JSON.parse(JSON.stringify(prefixCommand));
+            const clonedCommand = { ...prefixCommand, name };
             cat.get(prefixCommand?.category).push(clonedCommand);
             this.commands.set(name, clonedCommand);
             clonedCommand.name = name;
