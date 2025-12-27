@@ -142,6 +142,7 @@ class Bot extends Client {
 
     const commands = [];
     const base = type === "Slash" ? "./Commands/Slash" : "./Commands/Prefix";
+   await import(`${base}/${dir}/${file}`);
     const dirs = await fs.readdir(base);
 
     for (const dir of dirs) {
