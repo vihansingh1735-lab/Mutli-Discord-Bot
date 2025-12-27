@@ -67,9 +67,13 @@ export const CustomCommandHandler = async (message, guildData) => {
 /**@type {import("./index.mjs").BasicParamHandler} */
 export const RoleCommandHandler = async (message, guildData) => {
   try {
-    const { client } = message;
-    if (message.author.bot || message.system) return;
-    if (message.channel.type !== 0) return;
+    if (!message || !message.author) return;
+
+if (
+  message.author.bot ||
+  message.system ||
+  message.webhookId
+) return;
 
     if (
       !guildData.RolesCommands.List.length
