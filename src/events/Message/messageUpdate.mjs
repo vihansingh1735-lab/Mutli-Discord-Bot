@@ -10,7 +10,8 @@ export default {
      * @param {Message | import('discord.js').PartialMessage} newMessage - The message object.
      */
     run: async (client, oldMessage, newMessage) => {
-        if (oldMessage.author.bot || oldMessage.system || !oldMessage.content || !newMessage.content) return;
+        if (!oldMessage?.author || !newMessage?.author) return;
+if (oldMessage.author.bot || oldMessage.system) return;
 
         await auditlog("MessageUpdate", newMessage.guild, {message: oldMessage, newMessage})
         
