@@ -131,15 +131,15 @@ if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
       ...this.config,
       ...cleanResult,
     };
-// 🔒 STEP 3 — OWNER SAFETY FIX
-if (
-  !Array.isArray(config.Owners) ||
-  !config.Owners.some(id =>
-    globalConfig.Owners?.map(String).includes(String(id))
-  )
-) {
-  config.Owners = globalConfig.Owners;
+// 🔒 FORCE OWNERS (FINAL FIX)
+const fallbackOwners = globalConfig?.Owners ?? [];
+
+if (!Array.isArray(config.Owners)) {
+  config.Owners = fallbackOwners;
 }
+
+// 🔒 ENSURE IDS ARE STRINGS
+config.Owners = config.Owners.map(String);
     const Theme = Themes?.[botConfig.Theme];
 
     this.theme = config.Theme;
