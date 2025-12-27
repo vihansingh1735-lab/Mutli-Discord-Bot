@@ -131,7 +131,15 @@ if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
       ...this.config,
       ...cleanResult,
     };
-
+// 🔒 STEP 3 — OWNER SAFETY FIX
+if (
+  !Array.isArray(config.Owners) ||
+  !config.Owners.some(id =>
+    globalConfig.Owners?.map(String).includes(String(id))
+  )
+) {
+  config.Owners = globalConfig.Owners;
+}
     const Theme = Themes?.[botConfig.Theme];
 
     this.theme = config.Theme;
