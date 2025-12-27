@@ -36,8 +36,19 @@ class Bot extends Client {
         parse: ["roles", "users", "everyone"],
         repliedUser: false,
       },
-      intents: Object.keys(GIB),
-      partials: Object.keys(Partials),
+      intents: [
+  GIB.Guilds,
+  GIB.GuildMessages,
+  GIB.MessageContent,
+  GIB.GuildMembers,
+],
+
+partials: [
+  Partials.Message,
+  Partials.Channel,
+  Partials.Reaction,
+  Partials.User,
+],
     });
 
     this.config = config;
