@@ -214,7 +214,24 @@ export const getWeekNumber = (date) => {
   const yearStart = new Date(d.getFullYear(), 0, 1);
   return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
 };
+/**
+ * X (Twitter) follower counter
+ * @param {Object} data
+ * @param {import("discord.js").Guild} guild
+ */
+export const XCounter = async (data, guild) => {
+  if (!data?.Counter?.X?.ID) return;
 
+  const channel = guild.channels.cache.get(data.Counter.X.Channel);
+  if (!channel) return;
+
+  // Placeholder value (no API, no NSFW, no scraping)
+  const followers = data.Counter.X.FallbackCount || 0;
+
+  await channel.setName(
+    `${data.Counter.X.ChannelName || "X"} ${number.abbreviate(followers)}`
+  );
+};
 /* ================= MISC ================= */
 
 export const addSuffix = (num) => {
