@@ -478,7 +478,7 @@ export default {
             }
           }
 
-          function presencePanle() {
+          function presencePanel() {
             const embed = new EmbedBuilder()
               .setTheme(guildData?.Theme)
               .setDescription(
