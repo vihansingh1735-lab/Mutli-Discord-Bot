@@ -305,25 +305,30 @@ class Bot extends Client {
       const stat = await fs.stat(`./src/events/${event}`);
 
       if (stat.isDirectory()) {
-        const EventsDir = await fs.readdir(`./src/events/${event}`);
+  const EventsDir = await fs.readdir(`./src/events/${event}`);
 
-        for (const finalEvent of EventsDir.filter(i => i.endsWith(".mjs"))) {
-  const { default: clientEvent } = await import(
-    `./events/${event}/${finalEvent}`
-  );
+  for (const finalEvent of EventsDir.filter(i => i.endsWith(".mjs"))) {
+    const imported = await import(`./events/${event}/${finalEvent}`);
+    const clientEvent = imported?.default;
 
-  if (!clientEvent?.ignore && clientEvent.name && clientEvent.run) {
+    if (!clientEvent) continue;
+    if (clientEvent.ignore) continue;
+    if (!clientEvent.name) continue;
+    if (typeof clientEvent.run !== "function") continue;
+
     events.push(clientEvent);
   }
-        }
-      } else {
-        const { default: clientEvent } = await import(`./events/${event}`);
-        if (clientEvent?.ignore || !clientEvent.name || !clientEvent.run)
-          return;
-        events.push(clientEvent);
-      }
-    }
+} else {
+  const imported = await import(`./events/${event}`);
+  const clientEvent = imported?.default;
 
+  if (!clientEvent) return;
+  if (clientEvent.ignore) return;
+  if (!clientEvent.name) return;
+  if (typeof clientEvent.run !== "function") return;
+
+  events.push(clientEvent);
+      }
     cache.set(key, events, 10);
     return events;
   }
