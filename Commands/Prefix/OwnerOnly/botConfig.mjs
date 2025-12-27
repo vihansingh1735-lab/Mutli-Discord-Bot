@@ -276,7 +276,7 @@ export default {
 
                 await i.safeShowModal(modal);
 
-                const response = await i.awaitModalSubmit({
+                const response = await i.client.awaitModalSubmit({
                   time: 240000,
                   filter: (i) => i.customId === "botConfig:modal:prefix",
                 });
