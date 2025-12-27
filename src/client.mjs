@@ -58,7 +58,13 @@ class Bot extends Client {
  
 
   async start() {
-    try {
+    try { 
+this.removeAllListeners();
+this.events?.clear();
+this.commands?.clear();
+this.aliases?.clear();
+this.slashCommands?.clear();
+cache.clear();
       this.db = await new Database(this.config.CLIENT_ID).LoadModels();
       await this.configManagar();
 
