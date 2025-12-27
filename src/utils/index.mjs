@@ -14,7 +14,7 @@ import VoiceMaster from "./classes/VoiceMaster.mjs";
 import cache from "./cache.mjs";
 
 import * as todClassic from "./stuff/tod/classic.mjs";
-import * as todNsfw from "./stuff/tod/nsfw.mjs";
+
 import * as todFunny from "./stuff/tod/funny.mjs";
 
 import * as invite from "./invite.mjs";
