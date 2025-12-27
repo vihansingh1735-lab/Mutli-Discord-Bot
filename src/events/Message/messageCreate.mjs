@@ -4,7 +4,7 @@ import { prefixHandler } from "../../utils/handlers/index.mjs";
 export default {
   name: "messageCreate",
     if (
-      message.author?.bot ||
+      message.author.bot ||
       message.system ||
       message.webhookId ||
       !message.guild
