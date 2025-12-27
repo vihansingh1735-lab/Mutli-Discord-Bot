@@ -3,11 +3,15 @@ import { prefixHandler } from "../../utils/handlers/index.mjs";
 
 export default {
   name: "messageCreate",
+
+  run: async (client, message) => {
+    // 🔒 SAFETY CHECKS
     if (
-      message.author.bot ||
+      !message ||
+      !message.guild ||
+      message.author?.bot ||
       message.system ||
-      message.webhookId ||
-      !message.guild
+      message.webhookId
     ) return;
 
     console.log("PREFIX EVENT FIRED", message.id);
@@ -15,16 +19,20 @@ export default {
     const guildData = await message.guild.fetchData();
     const prefix = guildData?.Prefix || client.config.Prefix;
 
+    if (!prefix || !message.content) return;
+
     const prefixRegex = new RegExp(
       `^(<@!?${client.user.id}>|${escapeRegex(prefix)})`
     );
+
     if (!prefixRegex.test(message.content)) return;
 
     const [mPrefix] = message.content.match(prefixRegex);
+
     const args = message.content
       .slice(mPrefix.length)
       .trim()
-      .split(/ +/g);
+      .split(/\s+/);
 
     const cmd = args.shift()?.toLowerCase();
     if (!cmd) return;
