@@ -12,11 +12,7 @@ export default {
      */
     run: async (client, message) => {
         
-if (
-  message.author.bot ||
-  message.system ||
-  message.webhookId
-) return;
+if (message.author?.bot || message.system || message.webhookId) return;
 
         await GhostPingHandler(message, await message.guild.fetchData())
         const key = `Snipe:${client.user.id}:${message.guildId}:${message.channelId}`
