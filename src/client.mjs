@@ -131,16 +131,11 @@ if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
       ...this.config,
       ...cleanResult,
     };
-// 🔒 FINAL OWNER RESOLUTION (CORRECT SOURCE)
+// 🔒 FORCE OWNERS FROM GLOBAL CONFIG (OVERRIDE DB)
 const defaultOwners = globalConfig?.Default?.Owners ?? [];
 
-// ensure owners always exist
-if (!Array.isArray(config.Owners) || config.Owners.length === 0) {
-  config.Owners = defaultOwners;
-}
-
-// normalize IDs
-config.Owners = config.Owners.map(String);
+// ALWAYS trust config owners
+config.Owners = defaultOwners.map(String);
 
     
     const Theme = Themes?.[botConfig.Theme];
