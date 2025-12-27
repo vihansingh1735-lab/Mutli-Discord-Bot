@@ -131,15 +131,18 @@ if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
       ...this.config,
       ...cleanResult,
     };
-// 🔒 FORCE OWNERS (FINAL FIX)
-const fallbackOwners = globalConfig?.Owners ?? [];
+// 🔒 FINAL OWNER RESOLUTION (CORRECT SOURCE)
+const defaultOwners = globalConfig?.Default?.Owners ?? [];
 
-if (!Array.isArray(config.Owners)) {
-  config.Owners = fallbackOwners;
+// ensure owners always exist
+if (!Array.isArray(config.Owners) || config.Owners.length === 0) {
+  config.Owners = defaultOwners;
 }
 
-// 🔒 ENSURE IDS ARE STRINGS
+// normalize IDs
 config.Owners = config.Owners.map(String);
+
+    
     const Theme = Themes?.[botConfig.Theme];
 
     this.theme = config.Theme;
