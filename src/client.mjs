@@ -85,10 +85,14 @@ class Bot extends Client {
 
       await this._loadEvents();
 
-      await this.login(config.TOKEN);
+await this.login(config.TOKEN);
 
-      if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
+this.once("ready", () => {
+  console.log("✅ BOT READY:", this.user.tag);
+});
 
+if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
+      
       this.voiceMaster = new VoiceMaster(this);
       this.lvl = new Level(this);
       this.eco = new Economy(this);
