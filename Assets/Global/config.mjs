@@ -102,16 +102,7 @@ export default {
     Owners: ["1426918952906522786"], // bot owner ids
     Theme: "Blue",
   },
-// 🔒 FINAL OWNER RESOLUTION (CORRECT SOURCE)
-const defaultOwners = globalConfig?.Default?.Owners ?? [];
 
-// ensure owners always exist
-if (!Array.isArray(config.Owners) || config.Owners.length === 0) {
-  config.Owners = defaultOwners;
-}
-
-// normalize IDs
-config.Owners = config.Owners.map(String);
   // webhooks logs of your bot
   Log: {
     Ready:
