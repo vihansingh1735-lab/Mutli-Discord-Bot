@@ -3,14 +3,19 @@ import {
   Collection,
   GatewayIntentBits as GIB,
   Partials,
+  Routes,
+  REST,
+  DiscordjsErrorCodes,
 } from "discord.js";
 import fs from "fs/promises";
-import { createRequire } from "node:module";
+import { createRequire, isBuiltin } from "node:module";
 import logger from "./utils/logger.mjs";
 import {
   Level,
   Database,
+  EmbedBuilder,
   Economy,
+  GiveawaysManager,
   VoiceMaster,
 } from "./utils/index.mjs";
 import globalConfig from "../Assets/Global/config.mjs";
@@ -21,15 +26,18 @@ import * as Themes from "../Assets/Global/Themes.mjs";
 const cache = new Map();
 const require = createRequire(import.meta.url);
 
+//? base discord-bot client
+
 class Bot extends Client {
+  /** @param {import('../Assets/Global/clientConfig.mjs').clientConfig} config */
   constructor(config) {
     super({
       allowedMentions: {
         parse: ["roles", "users", "everyone"],
         repliedUser: false,
       },
-      intents: Object.values(GIB),
-      partials: Object.values(Partials),
+      intents: Object.keys(GIB),
+      partials: Object.keys(Partials),
     });
 
     this.config = config;
@@ -40,38 +48,47 @@ class Bot extends Client {
       this.db = await new Database(this.config.CLIENT_ID).LoadModels();
       await this.configManagar();
 
+      const { config } = this;
+
       ["events", "aliases", "buttons", "cooldowns", "slashCommands"].forEach(
         (i) => (this[i] = new Collection())
       );
 
+      /**@type {Collection<String, import('./utils/Command.mjs').prefix>} */
       this.commands = new Collection();
       this.categories = new Collection();
 
-      const enabled =
-        this.config.Commands?.Enabled?.length > 0
-          ? this.config.Commands.Enabled
-          : globalConfig.Commands.Categories;
+      config.Commands.Enabled.length > 0
+        ? config.Commands.Enabled.forEach((c) => {
+            this.categories.set(c, []);
+          })
+        : globalConfig.Commands.Categories.forEach((c) =>
+            this.categories.set(c, [])
+          );
 
-      enabled.forEach((c) => this.categories.set(c, []));
-
-      this.config.Commands?.Disabled?.forEach((c) =>
-        this.categories.delete(c)
-      );
+      if (config.Commands?.Disabled?.length)
+        config.Commands.Disabled.forEach((c) => this.categories.delete(c));
 
       await this._loadEvents();
-      await this.login(this.config.TOKEN);
 
-      if (!this.config.CLIENT_ID)
-        this.config.CLIENT_ID = this.application.id;
+      await this.login(config.TOKEN);
+
+      if (!config.CLIENT_ID) this.config.CLIENT_ID = this.application.id;
 
       this.voiceMaster = new VoiceMaster(this);
       this.lvl = new Level(this);
       this.eco = new Economy(this);
 
       await this.loadCommands();
+
     } catch (e) {
       logger(e, "error");
     }
+  }
+
+  async reLoad() {
+    await this.destroy();
+    await this.start();
   }
 
   async configManagar() {
@@ -83,115 +100,280 @@ class Bot extends Client {
       botConfig = await this.db.FindOne(Model, {});
     }
 
-    const { __v, _id, createdAt, updatedAt, ...clean } = botConfig.toJSON();
-    this.config = { ...this.config, ...clean };
+    const { createdAt, updatedAt, __v, _id, ...cleanResult } =
+      botConfig.toJSON();
 
-    const theme = Themes[this.config.Theme] ?? Themes.default;
-    this.theme = this.config.Theme;
-    this.embed = theme.embed;
-    this.emotes = theme.emotes;
+    const config = {
+      ...this.config,
+      ...cleanResult,
+    };
+
+    const Theme = Themes?.[botConfig.Theme];
+
+    this.theme = config.Theme;
+    this.embed = Theme.embed ?? Themes.default.embed;
+    this.emotes = Theme.emotes ?? Themes.default.emotes;
+
+    this.config = config;
+
+    return config;
+  }
+
+  /**
+   *
+   * @param {import("../Assets/Global/clientConfig.mjs").clientConfig} query
+   * @returns
+   */
+  async configUpdate(query) {
+    const Model = "BotConfig";
+    const botConfig = await this.db.UpdateOne(Model, {}, query, {
+      new: true,
+      upsert: true,
+      projection: { _id: 0, __v: 0 },
+    });
+    const { __v, _id, createdAt, updatedAt, ...cleanResult } = botConfig;
+
+    this.config = {
+      ...this.config,
+      ...cleanResult,
+    };
+
+    if (Object.keys(query).includes("Theme")) {
+      const Theme = Themes?.[query[`Theme`]];
+
+      this.theme = query.Theme;
+      this.embed = Theme.embed ?? Themes.default.embed;
+      this.emotes = Theme.emotes ?? Themes.default.emotes;
+    }
+
+    this.application.edit();
+
+    return this.config;
   }
 
   async _loadEvents() {
-    const events = await this.getEvents();
+    const events = await this.getEvets();
 
-    for (const event of events) {
+    for await (const event of events) {
       this.events.set(event.name, event);
+      if (event.customEvent) return event.run(this);
 
       if (event.runOnce)
-        this.once(event.name, (...a) => event.run(this, ...a));
-      else this.on(event.name, (...a) => event.run(this, ...a));
+        this.once(
+          event.name,
+          async (...args) => await event.run(this, ...args)
+        );
+      else
+        this.on(event.name, async (...args) => await event.run(this, ...args));
     }
   }
 
   async loadCommands() {
-    const prefixCmds = await this.getCommands("Prefix");
+    /**@type {Collection} */
+    const cat = this.categories;
+    const TOKEN = this.config.TOKEN;
+    const CLIENT_ID = this.config.CLIENT_ID;
+    const rest = new REST({ version: "9" }).setToken(TOKEN);
+    const slashCommands = [];
+
+    let prefixCount = 0;
+
+    /**@type {import('./utils/Command.mjs').interaction[]} */
     const slashCmds = await this.getCommands("Slash");
+    const prefixCmds = await this.getCommands("Prefix");
 
-    for (const cmd of slashCmds) {
-      if (!this.categories.has(cmd.category)) continue;
-      this.slashCommands.set(cmd.data.name, cmd);
-    }
-
-    for (const cmd of prefixCmds) {
-      if (!this.categories.has(cmd.category)) continue;
-
-      const names = Array.isArray(cmd.name) ? cmd.name : [cmd.name];
-
-      for (const name of names) {
-        const cloned = { ...cmd, name };
-        this.commands.set(name, cloned);
-        this.categories.get(cmd.category).push(cloned);
-
-        if (Array.isArray(cmd.aliases)) {
-          for (const alias of cmd.aliases) {
-            this.aliases.set(alias, name);
-          }
-        }
+    slashCmds.forEach((cmd) => {
+      if (cat.get(cmd?.category)) {
+        cat.get(cmd.category).push(cmd);
+        this.slashCommands.set(cmd.data.name, cmd);
+        slashCommands.push(cmd.data);
       }
-    }
+    });
+
+    await this.application.commands.set(slashCommands);
+    // await rest.put(
+    //     Routes.applicationCommands(CLIENT_ID), {
+    //     body: slashCommands
+    // });
+
+    //* ======== Message Commands
+
+    prefixCmds.forEach((prefixCommand) => {
+      if (!cat.get(prefixCommand?.category)) return;
+      if (prefixCommand.name) {
+        prefixCount++;
+        if (Array.isArray(prefixCommand.name)) {
+          for (const name of prefixCommand.name) {
+            const clonedCommand = JSON.parse(JSON.stringify(prefixCommand));
+            cat.get(prefixCommand?.category).push(clonedCommand);
+            this.commands.set(name, clonedCommand);
+            clonedCommand.name = name;
+            clonedCommand.description = clonedCommand.description.replace(
+              "{commandName}",
+              name
+            );
+            clonedCommand.run = prefixCommand.run;
+          }
+        } else {
+          this.commands.set(prefixCommand.name, prefixCommand);
+          cat.get(prefixCommand?.category).push(prefixCommand);
+        }
+      } else
+        logger(
+          Error`Prefix Command Error: ${
+            prefixCommand.name || file.split(".mjs")[0] || "Missing Name"
+          } - ${this.user.username}`,
+          "error"
+        );
+
+      // aliases
+      if (prefixCommand.aliases && Array.isArray(prefixCommand.aliases))
+        prefixCommand.aliases.forEach((messageCommandAlias) => {
+          this.aliases.set(prefixCommand, prefixCommand.name);
+        });
+    });
 
     logger(
-      `Loaded ${this.slashCommands.size} Slash & ${this.commands.size} Prefix commands`
+      `Loaded ` +
+        `${slashCommands.length}/${slashCmds.length}`.bold +
+        ` Slash & ` +
+        `${prefixCount}/${prefixCmds.length}`.bold +
+        ` Prefix Commands for ${this.user.username}`
     );
   }
 
+  /**
+   * @param {"Slash" | "Prefix"} type
+   * @returns {Promise<Array>}
+   */
   async getCommands(type) {
-    const cached = cache.get(type);
-    if (cached) return cached;
+    const key = type;
+    const cmds = cache.get(key);
+    if (cmds) return cmds;
 
     const commands = [];
-    const base = type === "Slash" ? "./Commands/Slash" : "./Commands/Prefix";
-   await import(`${base}/${dir}/${file}`);
-    const dirs = await fs.readdir(base);
 
-    for (const dir of dirs) {
-      const files = await fs.readdir(`${base}/${dir}`);
-      for (const file of files.filter((f) => f.endsWith(".mjs"))) {
-        const { default: cmd } = await import(`${base}/${dir}/${file}`);
-        if (cmd && !cmd.ignore) commands.push(cmd);
+    if (type === "Slash") {
+      try {
+        const dirs = await fs.readdir("./Commands/Slash");
+
+        for (const dir of dirs) {
+          const files = await fs.readdir(`./Commands/Slash/${dir}/`);
+          for (const file of files) {
+            const { default: slashCommandData } = await import(
+              `../Commands/Slash/${dir}/${file}`
+            );
+            commands.push(slashCommandData);
+          }
+        }
+      } catch (error) {
+        logger(error, "error");
       }
-    }
+    } else {
+      const dirs = await fs.readdir("./Commands/Prefix");
 
-    cache.set(type, commands, 10);
-    return commands;
-  }
+      for (const dir of dirs) {
+        const files = (await fs.readdir(`./Commands/Prefix/${dir}/`)).filter(
+          (file) => file.endsWith(".mjs")
+        );
 
-  async getEvents() {
-    const cached = cache.get("Events");
-    if (cached) return cached;
-
-    const events = [];
-    const dirs = await fs.readdir("./src/events");
-
-    for (const dir of dirs) {
-      const stat = await fs.stat(`./src/events/${dir}`);
-
-      if (stat.isDirectory()) {
-        const files = await fs.readdir(`./src/events/${dir}`);
-        for (const f of files.filter((i) => i.endsWith(".mjs"))) {
-          const { default: ev } = await import(`./events/${dir}/${f}`);
-          if (ev?.name && typeof ev.run === "function" && !ev.ignore)
-            events.push(ev);
+        for (const file of files) {
+          const { default: prefixCommand } = await import(
+            "../Commands/Prefix/" + dir + "/" + file
+          );
+          if (prefixCommand && !prefixCommand?.ignore)
+            commands.push(prefixCommand);
         }
       }
     }
 
-    cache.set("Events", events, 10);
+    cache.set(key, commands, 10);
+    return commands;
+  }
+
+  /** @returns {Promise<Array<{name:string, run:Function}>>} */
+  async getEvets() {
+    const events = [];
+    const key = "Events";
+    const cacheEve = await cache.get(key);
+
+    if (cacheEve) return cacheEve;
+
+    const _events = await fs.readdir(`./src/events`);
+
+    for (const event of _events) {
+      const stat = await fs.stat(`./src/events/${event}`);
+
+      if (stat.isDirectory()) {
+        const EventsDir = await fs.readdir(`./src/events/${event}`);
+
+        EventsDir.filter((i) => i.endsWith(".mjs")).forEach(
+          async (finalEvent) => {
+            const { default: clientEvent } = await import(
+              `./events/${event}/${finalEvent}`
+            );
+            if (!clientEvent?.ignore && clientEvent.name && clientEvent.run)
+              events.push(clientEvent);
+          }
+        );
+      } else {
+        const { default: clientEvent } = await import(`./events/${event}`);
+        if (clientEvent?.ignore || !clientEvent.name || !clientEvent.run)
+          return;
+        events.push(clientEvent);
+      }
+    }
+
+    cache.set(key, events, 10);
     return events;
   }
 
   getPromotion() {
-    const msgs = globalConfig?.Promotion?.Messages ?? [];
-    return { Message: msgs[Math.floor(Math.random() * msgs.length)] };
+    return {
+      Message:
+        globalConfig?.Promotion?.Messages[
+          ~~(Math.random() * globalConfig.Promotion.Messages.length)
+        ], // ~~ works same as Math.floor
+    };
   }
-
+  /** @returns {String} Bot invite URL*/
   getInvite() {
     return this.generateInvite({
       scopes: ["bot", "applications.commands"],
-      permissions: ["SendMessages", "EmbedLinks", "ReadMessageHistory"],
+      permissions: [
+        "AddReactions",
+        "AttachFiles",
+        "BanMembers",
+        "ChangeNickname",
+        "Connect",
+        "DeafenMembers",
+        "EmbedLinks",
+        "KickMembers",
+        "ManageChannels",
+        "ManageGuild",
+        "ManageMessages",
+        "ManageNicknames",
+        "ManageRoles",
+        "ModerateMembers",
+        "MoveMembers",
+        "MuteMembers",
+        "PrioritySpeaker",
+        "ReadMessageHistory",
+        "SendMessages",
+        "SendMessagesInThreads",
+        "Speak",
+        "ViewChannel",
+      ],
     });
   }
 }
 
 export default Bot;
+
+/**
+ * @author uo1428
+ * @support .gg/uoaio | youtobe.com/u/uoaio
+ * @donate patreon.com/uoaio
+ * @note Dont take any type credit
+ * @copyright discord.com/users/uoaio all rights reserved
+ */
