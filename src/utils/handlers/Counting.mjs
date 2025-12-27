@@ -4,8 +4,13 @@ import { cache } from '../index.mjs'
 /**@type {import("./index.mjs").BasicParamHandler} */
 export const Counting = async (message, data) => {
     try {
-        const { client } = message;
-        if (!message.guild || !message.content || message.author.bot || message.system) return;
+        if (!message || !message.author) return;
+
+if (
+  message.author.bot ||
+  message.system ||
+  message.webhookId
+) return;
 
         if (data?.Count?.Enable && data?.Count?.Channel === message.channelId) {
             let guildData = await client.db.FindOne('CountGuild', {
