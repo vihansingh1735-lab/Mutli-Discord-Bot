@@ -319,7 +319,7 @@ class Bot extends Client {
   typeof clientEvent.name !== "string" ||
   typeof clientEvent.run !== "function"
 ) {
-  continue; // ✅ DO NOT return
+  repeat; // ✅ DO NOT return
 }
 
 events.push(clientEvent);
