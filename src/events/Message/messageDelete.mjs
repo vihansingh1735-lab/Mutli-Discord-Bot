@@ -11,8 +11,7 @@ export default {
      * @param {Message} message - The message object.
      */
     run: async (client, message) => {
-        if (!message || !message.author) return;
-
+        
 if (
   message.author.bot ||
   message.system ||
