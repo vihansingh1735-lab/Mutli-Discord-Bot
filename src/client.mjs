@@ -29,27 +29,31 @@ const require = createRequire(import.meta.url);
 //? base discord-bot client
 
 class Bot extends Client {
-  /** @param {import('../Assets/Global/clientConfig.mjs').clientConfig} config */
   constructor(config) {
     super({
       allowedMentions: {
         parse: ["roles", "users", "everyone"],
         repliedUser: false,
       },
-      intents: [
-  GIB.Guilds,
-  GIB.GuildMessages,
-  GIB.MessageContent,
-  GIB.GuildMembers,
-],
 
-partials: [
-  Partials.Message,
-  Partials.Channel,
-  Partials.Reaction,
-  Partials.User,
-],
+      intents: [
+        GIB.Guilds,
+        GIB.GuildMessages,
+        GIB.MessageContent,
+        GIB.GuildMembers,
+      ],
+
+      partials: [
+        Partials.Message,
+        Partials.Channel,
+        Partials.Reaction,
+        Partials.User,
+      ],
     });
+
+    this.config = config;
+  }
+}
 
     this.config = config;
   }
