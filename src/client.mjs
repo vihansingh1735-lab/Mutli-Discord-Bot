@@ -152,7 +152,7 @@ class Bot extends Client {
   }
 
   async _loadEvents() {
-    const events = await this.getEvets();
+    const events = await this.getEvents();
 
     for await (const event of events) {
       this.events.set(event.name, event);
