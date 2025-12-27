@@ -92,7 +92,10 @@ console.log("Owners:", client.config.Owners);
 
             }
 
-
+const totalMembers = client.guilds.cache.reduce(
+  (total, guild) => total + (guild.memberCount || 0),
+  0
+);
 
             // first main page 🏆
             let em1 = new EmbedBuilder()
