@@ -312,3 +312,20 @@ export const postReddit = async (guild) => {
     }
   }
 };
+/**
+ * Validate social media username from URL
+ * @param {string} input
+ * @param {"youtube" | "twitch"} type
+ * @returns {string|null}
+ */
+export const validateSocialMedia = (input, type) => {
+  if (!input || !type) return null;
+
+  const regex = {
+    youtube: /youtube\.com\/(channel|c)\/([a-zA-Z0-9_-]+)/i,
+    twitch: /twitch\.tv\/([a-zA-Z0-9_]+)/i,
+  };
+
+  const match = input.match(regex[type.toLowerCase()]);
+  return match ? match[2] || match[1] : null;
+};
