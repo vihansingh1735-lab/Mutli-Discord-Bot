@@ -301,7 +301,7 @@ export default {
                 Status: value,
               });
               client.user.setStatus(value);
-              await msg.safeEdit(presencePanle());
+              await msg.safeEdit(presencePanel());
             }
 
             //* activity type menu - watching playing ...
@@ -313,7 +313,7 @@ export default {
               client.user.setActivity({
                 ...client.config.Activity,
               });
-              await msg.safeEdit(presencePanle());
+              await msg.safeEdit(presencePanel());
             }
 
             //* owners menu
@@ -396,7 +396,7 @@ export default {
                 client.user.setActivity({
                   ...client.config.Activity,
                 });
-                await msg.safeEdit(presencePanle());
+                await msg.safeEdit(presencePanel());
               }
             }
 
@@ -468,7 +468,7 @@ export default {
                   ...client.config.Activity,
                 });
 
-                await msg.safeEdit(presencePanle());
+                await msg.safeEdit(presencePanel());
               }
             }
 
