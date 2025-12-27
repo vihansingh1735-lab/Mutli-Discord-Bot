@@ -345,9 +345,6 @@ class Bot extends Client {
 
   cache.set("Events", events, 10);
   return events;
-}
-    cache.set(key, events, 10);
-    return events;
   }
 
   getPromotion() {
