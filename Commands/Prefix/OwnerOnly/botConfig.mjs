@@ -168,7 +168,7 @@ export default {
                   .addComponents(new ActionRowBuilder().addComponents(input_1));
 
                 await i.safeShowModal(modal).then(async () => {
-                  const response = await i.client.awaitModalSubmit({
+                  const response = await i.awaitModalSubmit({
                     filter: (i) =>
                       i.customId === "botConfig:modal:nameORpfp" &&
                       i.user.id === message.author.id,
@@ -276,7 +276,7 @@ export default {
 
                 await i.showmodal(modal);
 
-                const response = await i.client.awaitModalSubmit({
+                const response = await i.awaitModalSubmit({
                   time: 240000,
                   filter: (i) => i.customId === "botConfig:modal:prefix",
                 });
