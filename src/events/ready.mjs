@@ -5,7 +5,6 @@ import {
   postReddit,
 } from "../utils/index.mjs";
 import { invite } from "../utils/invite.mjs";
-import Bot from "../client.mjs";
 import {
   BirthdayHandler,
   SocialMediaHandler,
@@ -16,36 +15,69 @@ export default {
   runOnce: true,
 
   /**
-   * @param {Bot} client
+   * @param {import("../client.mjs").default} client
    */
   run: async (client) => {
     logger(`Logged in as ${client.user.tag}!`.cyan.bold);
 
-    /* =======================
-       ✅ FIXED PRESENCE
-    ======================= */
+    /* ===============================
+       🔥 SAFE PRESENCE SYSTEM
+    =============================== */
 
-    const activityText =
-      client.config?.Activity || "Listening to you <3";
+    let activityName = "Listening to you <3";
+    let activityType = ActivityType.Listening;
 
-    const status =
-      client.config?.Status || "online";
+    const rawActivity = client.config?.Activity;
+
+    // STRING
+    if (typeof rawActivity === "string") {
+      activityName = rawActivity;
+    }
+
+    // OBJECT
+    else if (typeof rawActivity === "object" && rawActivity !== null) {
+      if (typeof rawActivity.name === "string") {
+        activityName = rawActivity.name;
+      } else if (typeof rawActivity.text === "string") {
+        activityName = rawActivity.text;
+      }
+
+      if (typeof rawActivity.type === "string") {
+        const map = {
+          PLAYING: ActivityType.Playing,
+          LISTENING: ActivityType.Listening,
+          WATCHING: ActivityType.Watching,
+          STREAMING: ActivityType.Streaming,
+          COMPETING: ActivityType.Competing,
+        };
+        activityType =
+          map[rawActivity.type.toUpperCase()] ??
+          ActivityType.Listening;
+      }
+    }
+
+    // ARRAY
+    else if (Array.isArray(rawActivity) && rawActivity[0]) {
+      if (typeof rawActivity[0].name === "string") {
+        activityName = rawActivity[0].name;
+      }
+    }
 
     await client.user.setPresence({
-      status,
+      status: client.config?.Status || "online",
       activities: [
         {
-          name: activityText,
-          type: ActivityType.Listening, // 🔥 IMPORTANT
+          name: activityName,
+          type: activityType,
         },
       ],
     });
 
-    logger(`Presence set → ${activityText}`.green);
+    logger(`Presence set → ${activityName}`.green);
 
-    /* =======================
-       Background jobs
-    ======================= */
+    /* ===============================
+       🔁 BACKGROUND TASKS
+    =============================== */
 
     const processGuilds = async () => {
       const data = await client.db.Find("GuildConfig");
@@ -62,9 +94,9 @@ export default {
     await processGuilds();
     setInterval(processGuilds, 15 * 60 * 1000);
 
-    /* =======================
-       Webhook log
-    ======================= */
+    /* ===============================
+       📡 READY WEBHOOK LOG
+    =============================== */
 
     webhookLog(
       {
