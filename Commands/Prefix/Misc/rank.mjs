@@ -3,7 +3,7 @@ import canvafy from "canvafy";
 const { Rank } = canvafy
 import { Level } from "../../../src/utils/index.mjs";
 /**@type {import('../../../src/utils/Command.mjs').prefix} */
-
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 export default {
     name: "rank",
     description: "Show's you the your rank in this server",
@@ -27,7 +27,12 @@ export default {
 
 
             if (guildData?.Levels == true) {
-
+const row = new ActionRowBuilder().addComponents(
+  new ButtonBuilder()
+    .setCustomId("rank_refresh")
+    .setLabel("Refresh")
+    .setStyle(ButtonStyle.Primary)
+);
                 if (target.bot) return await message.safeEdit({
                     embeds: [new EmbedBuilder().setTheme(guildData.Theme).setDescription("^{common.bot_selected}")]
                 });
