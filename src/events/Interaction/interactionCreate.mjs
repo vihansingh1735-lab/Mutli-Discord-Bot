@@ -1,4 +1,5 @@
 import { logger } from "../../utils/index.mjs";
+import { slashHandler } from "../../utils/handlers/Command.mjs";
 export default {
   name: "interactionCreate",
 
