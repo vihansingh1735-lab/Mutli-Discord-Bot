@@ -1,37 +1,63 @@
-import Bot from '../../client.mjs';
-import { logger } from '../../utils/index.mjs';
-import { slashHandler } from '../../utils/handlers/Command.mjs';
-import { TruthOrDareHandler, ReactionRoleHandler, TicketCoreHandler } from '../../utils/handlers/index.mjs';
-import { InteractionType } from 'discord.js';
-import { JTC_CoreHandler } from '../../utils/handlers/JoinToCreate.mjs';
-
-//* ================================================================================
 export default {
   name: "interactionCreate",
-  /**
- * Event handler for the "interactionCreate" event.
- * @param {Bot} client - The Discord client instance.
- * @param {import('discord.js').Interaction} interaction - The interaction object.
- * @returns None
- */
+
   run: async (client, interaction) => {
     try {
+      if (!interaction.guild) return;
+
       const guildData = await interaction.guild.fetchData();
 
-      if (interaction.type === 2 || interaction.type === 4) {
-
-        await slashHandler(interaction, guildData)
-
+      // ================= SLASH & CONTEXT =================
+      if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
+        return await slashHandler(interaction, guildData);
       }
 
-      else if (interaction.type === 3 || interaction.type === 5) { // message components 3, modal 5
-        await JTC_CoreHandler(interaction, guildData)
-        // await TruthOrDareHandler(interaction, guildData);
-        await ReactionRoleHandler(interaction, guildData);
-        await TicketCoreHandler(interaction, guildData)
+      // ================= BUTTONS =================
+      if (interaction.isButton()) {
+
+        // ONE handler must handle ONE button
+        if (interaction.customId.startsWith("jtc_")) {
+          return await JTC_CoreHandler(interaction, guildData);
+        }
+
+        if (interaction.customId.startsWith("rr_")) {
+          return await ReactionRoleHandler(interaction, guildData);
+        }
+
+        if (interaction.customId.startsWith("ticket_")) {
+          return await TicketCoreHandler(interaction, guildData);
+        }
+
+        // fallback
+        return interaction.reply({
+          content: "❌ Unknown button.",
+          ephemeral: true
+        });
       }
 
-    } catch (E) { logger(E, "error") }
+      // ================= MODALS =================
+      if (interaction.isModalSubmit()) {
+
+        if (interaction.customId.startsWith("ticket_")) {
+          return await TicketCoreHandler(interaction, guildData);
+        }
+
+        return interaction.reply({
+          content: "❌ Unknown modal.",
+          ephemeral: true
+        });
+      }
+
+    } catch (err) {
+      logger(err, "error");
+
+      // SAFETY REPLY
+      if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content: "⚠️ Something went wrong.",
+          ephemeral: true
+        });
+      }
+    }
   }
-
-}
+};
