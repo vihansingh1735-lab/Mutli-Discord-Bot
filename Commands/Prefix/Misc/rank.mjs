@@ -3,7 +3,11 @@ import canvafy from "canvafy";
 const { Rank } = canvafy
 import { Level } from "../../../src/utils/index.mjs";
 /**@type {import('../../../src/utils/Command.mjs').prefix} */
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = import("discord.js");
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle
+} from "discord.js";
 export default {
     name: "rank",
     description: "Show's you the your rank in this server",
