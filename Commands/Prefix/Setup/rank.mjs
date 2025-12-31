@@ -183,7 +183,7 @@ cmd.run = async ({ message, client, err, Slash, options, guildData }) => {
                                 .setDescription(`**Select a channel from given channels to set as rankup channel! for ${Type}**\n\n${dbChannel ? `!{star} Current Channel: <#${dbChannel}>` : ""}`)
                                 .setAuthor({
                                     name: "LevelUp Channel: " + Type,
-                                    url: "https://youtube.com/@uoaio",
+                                    url: "https://www.youtube.com/@Xyntr1xGG",
                                     iconURL: emoteLink("channel")
                                 })
 
@@ -211,7 +211,7 @@ cmd.run = async ({ message, client, err, Slash, options, guildData }) => {
                                 .setDefaultFooter()
                                 .setAuthor({
                                     name: "Setup Level Message for " + Type,
-                                    url: "https://discord.gg/uoaio",
+                                    url: "https://www.youtube.com/@Xyntr1xGG",
                                     iconURL: emoteLink("message")
                                 })
                                 .setThumbnail(emoteLink("message"))
@@ -283,7 +283,7 @@ cmd.run = async ({ message, client, err, Slash, options, guildData }) => {
                                 .setDefaultFooter()
                                 .setAuthor({
                                     name: "LevelUp Rewards: " + Type,
-                                    url: "https://youtube.com/@uoaio",
+                                    url: "https://www.youtube.com/@Xyntr1xGG",
                                     iconURL: emoteLink("rewards")
                                 }).setThumbnail(emoteLink("rewards")).setDescription("*Select a Role from to set or update role as LevelUp Role*\n### Must Read Before Adding Role\n- The Role Postion lower than Me/My Role!\n- The Role Must Addable/Removeable\n- Make sure role does not has admin permission!");
 
