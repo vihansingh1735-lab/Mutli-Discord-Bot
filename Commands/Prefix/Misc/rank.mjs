@@ -28,7 +28,7 @@ export default {
 
             if (guildData?.Levels == true) {
 
-                if (target.bot) return await msg.safeEdit({
+                if (target.bot) return await message.safeEdit({
                     embeds: [new EmbedBuilder().setTheme(guildData.Theme).setDescription("^{common.bot_selected}")]
                 });
 
