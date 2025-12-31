@@ -14,7 +14,7 @@ function slash(interaction, error) {
     .setColor("wrongcolor")
     .setAuthor({
       name: `An error has occured! Try again later!`,
-      url: "https://youtube.com/@uoaio",
+      url: "https://www.youtube.com/@Xyntr1xGG",
     });
 
   interaction.safeReply({ embeds: [embed], ephemeral: true }).catch(() => {
@@ -39,7 +39,7 @@ function msg(message, error) {
     .setColor("wrongcolor")
     .setAuthor({
       name: `An error has occured! Try again later!`,
-      url: "https://youtube.com/@uoaio",
+      url: "https://www.youtube.com/@Xyntr1xGG",
     });
 
   if (message?.author?.id === client.user.id)
