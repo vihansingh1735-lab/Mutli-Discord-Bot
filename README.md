@@ -31,4 +31,4 @@ You can change default bot configuration once in `Assests/Global/config.mjs` fil
 - [MongoDB](https://www.mongodb.com/)
 - [Discord Bot](https://discord.com/developers/applications)
 - Package Manager ([npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/), etc.)
-- [Brain](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+- [Brain](https://www.youtube.com/@Xyntr1xGG)
