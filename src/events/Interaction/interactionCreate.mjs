@@ -1,3 +1,4 @@
+import { logger } from "../../utils/index.mjs";
 export default {
   name: "interactionCreate",
 
