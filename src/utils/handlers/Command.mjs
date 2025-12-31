@@ -412,10 +412,13 @@ if (!interaction.isChatInputCommand()) return;
     const guildData = data
 
     try {
+    if (!interaction.deferred && !interaction.replied) {
+        await interaction.deferReply({ ephemeral: true });
+    }
 
         //* ==============================< Command Categorization  >=============================\\
 
-        if (slashCommand.category && !client.categories.get(slashCommand.category)) return await interaction.safeReply({
+        if (slashCommand.category && !client.categories.get(slashCommand.category)) return await interaction.editReply({
             ephemeral: true,
             embeds: [new EmbedBuilder().setTheme(guildData.Theme)
                 .setTitle(`!{x} **That Command Category Doesn't Exist!**`).setColor(client.embed.wrongcolor)
