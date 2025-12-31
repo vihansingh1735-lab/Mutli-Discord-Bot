@@ -390,14 +390,18 @@ export const slashHandler = async (interaction, data) => {
     /**@type {import('../../utils/Command.mjs').interaction} */
     const slashCommand = client.slashCommands.get(interaction.commandName);
 
-    if (interaction.type == 4) {
-        if (slashCommand.autocomplete) {
-            const choices = [];
-            await slashCommand.autocomplete(interaction, choices)
-        }
-    }
+    if (!slashCommand) return;
 
-    if (!interaction.type == 2) return;
+// AUTOCOMPLETE
+if (interaction.isAutocomplete()) {
+    if (slashCommand.autocomplete) {
+        return slashCommand.autocomplete(interaction, []);
+    }
+    return;
+}
+
+// SLASH COMMAND ONLY
+if (!interaction.isChatInputCommand()) return;
 
     //* ==============================< If command doesn't found >=============================\\
 
